@@ -21,7 +21,7 @@ describe('Aplazame - Checkout', () => {
         cy.get('@buttonPay').click()
     })
 
-    it('should submit modal checkout', {
+    it('should accept and submit checkout form', {
         retries: {
           runMode: 2,
           openMode: 1
@@ -35,7 +35,7 @@ describe('Aplazame - Checkout', () => {
         })
     })
 
-    it('should fill personal data in the customer form', {
+    it('should fill personal data and submit customer form', {
         retries: {
           runMode: 2,
           openMode: 1
@@ -51,7 +51,7 @@ describe('Aplazame - Checkout', () => {
         })
     })
 
-    it('should fill payment section in the customer form', {
+    it('should fill payment section and submit customer form', {
         retries: {
           runMode: 2,
           openMode: 1
@@ -66,16 +66,16 @@ describe('Aplazame - Checkout', () => {
         })
     })
 
-        /**
-        cy.get('section-payment-methods').as('sectionPaymentMethods')
-        cy.get('@sectionPaymentMethods').should('be.visible')
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().enter('[name*="__privateStripeFrame"]', { timeout: 10000 }).then(getBody => {
-                getBody().find('input[name="cardnumber"]').click().type('4111111111111111', {delay: 400})
-                getBody().find('input[name="cardExpiry"]').click().type('1125', {delay: 400})
-                getBody().find('input[name="cardCvc"]').click().type('123', {delay: 400})
-            })
-        })
-        */
+      /**
+      cy.get('section-payment-methods').as('sectionPaymentMethods')
+      cy.get('@sectionPaymentMethods').should('be.visible')
+      cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+          getBody().enter('[name*="__privateStripeFrame"]', { timeout: 10000 }).then(getBody => {
+              getBody().find('input[name="cardnumber"]').click().type('4111111111111111', {delay: 400})
+              getBody().find('input[name="cardExpiry"]').click().type('1125', {delay: 400})
+              getBody().find('input[name="cardCvc"]').click().type('123', {delay: 400})
+          })
+      })
+      */
     
 })
