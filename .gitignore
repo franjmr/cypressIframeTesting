@@ -3,3 +3,6 @@ node_modules
 
 ## Package Lock file
 package-lock.json
+
+## Cypress videos
+cypress/videos
