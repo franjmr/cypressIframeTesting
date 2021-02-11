@@ -1,5 +1,6 @@
 {
     "baseUrl": "https://demo.aplazame.com",
     "defaultCommandTimeout": 6000,
-    "video": true
+    "video": false,
+    "chromeWebSecurity": false
   }
