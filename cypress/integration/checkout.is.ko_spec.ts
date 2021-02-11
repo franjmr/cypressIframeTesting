@@ -44,7 +44,7 @@ describe('Aplazame - Checkout KO', () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
             getBody().find('form[name="checkout"]').as('formCheckout')
             cy.get('@formCheckout').should('be.visible')
-            cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('34084793N')
+            cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('99999998T')
             cy.get('@formCheckout').find('input[name=birthday]').click().clear().type('14011984', {delay: 100})
             cy.get('@formCheckout').find('input[type="checkbox"]').click()
             cy.get('@formCheckout').find('button[type=submit]').click()
