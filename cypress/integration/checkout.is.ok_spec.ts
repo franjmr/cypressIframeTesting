@@ -81,40 +81,46 @@ describe('Aplazame - Checkout OK', () => {
             cy.get('@formCheckout').find('.-cc-cvv').as('ccCvv').should('be.visible')
 
             cy.get('@ccNumber').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
-                const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                iframe.on('load', function(){
-                    const document = (this as any).contentWindow.document
-                    const root = document.getElementById("root")
-                    const input = root.getElementsByClassName('InputElement')
-                    input[0].value = "4111 1111 1111 1111"
-                    cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 200 })
-                });
+                return new Cypress.Promise((resolve) => {
+                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                    iframe.on('load', function(){
+                        const document = (this as any).contentWindow.document
+                        const root = document.getElementById("root")
+                        const input = root.getElementsByClassName('InputElement')
+                        cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 200 })
+                        resolve()
+                    })
+                })
             }).then(($lis) => {
                 expect($lis).to.have.length(1)
             })
 
             cy.get('@ccExpiry').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
-                const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                iframe.bind("load",function(){
-                    const document = (this as any).contentWindow.document
-                    const root = document.getElementById("root")
-                    const input = root.getElementsByClassName('InputElement')
-                    input[0].value = "1125"
-                    //cy.wrap(input[0]).click().clear().type('1125', {delay: 200, force: true })
-                });
+                return new Cypress.Promise((resolve) => {
+                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                    iframe.on('load', function(){
+                        const document = (this as any).contentWindow.document
+                        const root = document.getElementById("root")
+                        const input = root.getElementsByClassName('InputElement')
+                        cy.wrap(input[0]).click().clear().type('1125', {delay: 200 })
+                        resolve()
+                    })
+                })
             }).then(($lis) => {
                 expect($lis).to.have.length(1)
             })
 
             cy.get('@ccCvv').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
-                const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                iframe.bind("load",function(){
-                    const document = (this as any).contentWindow.document
-                    const root = document.getElementById("root")
-                    const input = root.getElementsByClassName('InputElement')
-                    input[0].value = "123"
-                    //cy.wrap(input[0]).click().clear().type('123', {delay: 200, force: true })
-                });
+                return new Cypress.Promise((resolve) => {
+                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                    iframe.on('load', function(){
+                        const document = (this as any).contentWindow.document
+                        const root = document.getElementById("root")
+                        const input = root.getElementsByClassName('InputElement')
+                        cy.wrap(input[0]).click().clear().type('123', {delay: 200 })
+                        resolve()
+                    })
+                })
             }).then(($lis) => {
                 expect($lis).to.have.length(1)
             })
