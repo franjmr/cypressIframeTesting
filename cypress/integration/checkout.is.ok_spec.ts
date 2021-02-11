@@ -1,17 +1,3 @@
-const getIframeDocument = (selector: string) => {
-    return cy.get(selector, {timeout: 10000 }).its('0.contentDocument').should('exist')
-}
-
-const getIframeBody = (selector: string) => {
-    return getIframeDocument(selector).its('body').should('not.be.undefined').then(cy.wrap)
-}
-
-
-const getIframeBody_FromAnElement = (selector: string, element: Cypress.Chainable<unknown>) => {
-    const iframe = element.get(selector, {timeout: 10000 }).its('0.contentDocument').should('exist')
-    return iframe.its('body').should('not.be.undefined').then(cy.wrap)
-}
-
 describe('Aplazame - Checkout OK', () => {
     it('should visit Aplazame url', () => {
         cy.visit('https://demo.aplazame.com');
@@ -96,15 +82,15 @@ describe('Aplazame - Checkout OK', () => {
 
             cy.get('@ccNumber').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
                 const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                iframe.bind("load",function(){
+                iframe.on('load', function(){
                     const document = (this as any).contentWindow.document
                     const root = document.getElementById("root")
                     const input = root.getElementsByClassName('InputElement')
                     input[0].value = "4111 1111 1111 1111"
+                    cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 200 })
                 });
-              }).then(($lis) => {
+            }).then(($lis) => {
                 expect($lis).to.have.length(1)
-              })
             })
 
             cy.get('@ccExpiry').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
@@ -112,10 +98,11 @@ describe('Aplazame - Checkout OK', () => {
                 iframe.bind("load",function(){
                     const document = (this as any).contentWindow.document
                     const root = document.getElementById("root")
-                    const inputs = root.getElementsByClassName('InputElement')
-                    inputs[0].value = "1125"
+                    const input = root.getElementsByClassName('InputElement')
+                    input[0].value = "1125"
+                    //cy.wrap(input[0]).click().clear().type('1125', {delay: 200, force: true })
                 });
-              }).then(($lis) => {
+            }).then(($lis) => {
                 expect($lis).to.have.length(1)
             })
 
@@ -126,10 +113,11 @@ describe('Aplazame - Checkout OK', () => {
                     const root = document.getElementById("root")
                     const input = root.getElementsByClassName('InputElement')
                     input[0].value = "123"
+                    //cy.wrap(input[0]).click().clear().type('123', {delay: 200, force: true })
                 });
-              }).then(($lis) => {
+            }).then(($lis) => {
                 expect($lis).to.have.length(1)
             })
         })
-
+    })
 })
