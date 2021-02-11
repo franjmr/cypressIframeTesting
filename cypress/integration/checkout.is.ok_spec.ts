@@ -1,3 +1,17 @@
+const getIframeDocument = (selector: string) => {
+    return cy.get(selector, {timeout: 10000 }).its('0.contentDocument').should('exist')
+}
+
+const getIframeBody = (selector: string) => {
+    return getIframeDocument(selector).its('body').should('not.be.undefined').then(cy.wrap)
+}
+
+
+const getIframeBody_FromAnElement = (selector: string, element: Cypress.Chainable<unknown>) => {
+    const iframe = element.get(selector, {timeout: 10000 }).its('0.contentDocument').should('exist')
+    return iframe.its('body').should('not.be.undefined').then(cy.wrap)
+}
+
 describe('Aplazame - Checkout OK', () => {
     it('should visit Aplazame url', () => {
         cy.visit('https://demo.aplazame.com');
@@ -66,16 +80,56 @@ describe('Aplazame - Checkout OK', () => {
         })
     })
 
-      /**
-      cy.get('section-payment-methods').as('sectionPaymentMethods')
-      cy.get('@sectionPaymentMethods').should('be.visible')
-      cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-          getBody().enter('[name*="__privateStripeFrame"]', { timeout: 10000 }).then(getBody => {
-              getBody().find('input[name="cardnumber"]').click().type('4111111111111111', {delay: 400})
-              getBody().find('input[name="cardExpiry"]').click().type('1125', {delay: 400})
-              getBody().find('input[name="cardCvc"]').click().type('123', {delay: 400})
-          })
-      })
-      */
     
+    it('should get iframe to fill inputs', {
+        retries: {
+          runMode: 2,
+          openMode: 1
+        }
+      }, () => {
+        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            getBody().find('form[name="checkout"]').as('formCheckout')
+            cy.get('@formCheckout').find('.-cc-inputs-slider').should('be.visible')
+            cy.get('@formCheckout').find('.-cc-number').as('ccNumber').should('be.visible')
+            cy.get('@formCheckout').find('.-cc-expiry').as('ccExpiry').should('be.visible')
+            cy.get('@formCheckout').find('.-cc-cvv').as('ccCvv').should('be.visible')
+
+            cy.get('@ccNumber').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
+                const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                iframe.bind("load",function(){
+                    const document = (this as any).contentWindow.document
+                    const root = document.getElementById("root")
+                    const input = root.getElementsByClassName('InputElement')
+                    input[0].value = "4111 1111 1111 1111"
+                });
+              }).then(($lis) => {
+                expect($lis).to.have.length(1)
+              })
+            })
+
+            cy.get('@ccExpiry').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
+                const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                iframe.bind("load",function(){
+                    const document = (this as any).contentWindow.document
+                    const root = document.getElementById("root")
+                    const inputs = root.getElementsByClassName('InputElement')
+                    inputs[0].value = "1125"
+                });
+              }).then(($lis) => {
+                expect($lis).to.have.length(1)
+            })
+
+            cy.get('@ccCvv').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
+                const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                iframe.bind("load",function(){
+                    const document = (this as any).contentWindow.document
+                    const root = document.getElementById("root")
+                    const input = root.getElementsByClassName('InputElement')
+                    input[0].value = "123"
+                });
+              }).then(($lis) => {
+                expect($lis).to.have.length(1)
+            })
+        })
+
 })
