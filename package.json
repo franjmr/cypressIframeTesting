@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "cy:open": "cypress open",
-    "cy:run:sample": "cypress run --spec ./cypress/integration/sample_spec.ts",
-    "cy:run:checkout:ok": "cypress run --spec ./cypress/integration/checkout.is.ok_spec.ts"
+    "cy:run:checkout:all": "cypress run",
+    "cy:run:checkout:ok": "cypress run --spec ./cypress/integration/checkout.is.ok_spec.ts",
+    "cy:run:checkout:ko": "cypress run --spec ./cypress/integration/checkout.is.ko_spec.ts"
   },
   "author": "fjmr",
   "license": "ISC",

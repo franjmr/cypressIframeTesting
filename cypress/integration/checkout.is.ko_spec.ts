@@ -1,4 +1,4 @@
-describe('Aplazame - Checkout OK', () => {
+describe('Aplazame - Checkout KO', () => {
     it('should visit Aplazame', () => {
         cy.visit('https://demo.aplazame.com');
         cy.get('article').should('be.visible')
@@ -44,7 +44,7 @@ describe('Aplazame - Checkout OK', () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
             getBody().find('form[name="checkout"]').as('formCheckout')
             cy.get('@formCheckout').should('be.visible')
-            cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('34084793N')
+            cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('99999998T')
             cy.get('@formCheckout').find('input[name=birthday]').click().clear().type('14011984', {delay: 100})
             cy.get('@formCheckout').find('input[type="checkbox"]').click()
             cy.get('@formCheckout').find('button[type=submit]').click()
@@ -131,16 +131,16 @@ describe('Aplazame - Checkout OK', () => {
         })
     })
 
-    it("should accept the credit", {
+    it("should not pass admission criteria", {
         retries: {
           runMode: 2,
           openMode: 1
         }
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('#aplazame----otp----signature').as('otpSignature')
-            cy.get('@otpSignature').find('.-sms-sent', {timeout: 10000}).should('contain.text','Te hemos enviado un PIN al')
-            cy.get('@otpSignature').find('#OtpSecureContainer', {timeout: 10000}).should('be.visible')
+            getBody().find('.-result-content').as('resultContent')
+            cy.get('@resultContent').find('.-result-title').should('contain.text','¡Lo sentimos!')
+            cy.get('@resultContent').find('.-result-description').should('contain.text','Tu solicitud no cumple los criterios de admisión de crédito de Aplazame')
         })
     })
 })
