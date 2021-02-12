@@ -47,11 +47,11 @@ describe('Aplazame - Checkout PENDING', () => {
             cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('99999995C')
             cy.get('@formCheckout').find('input[name=birthday]').click().clear().type('14011984', {delay: 100})
             cy.get('@formCheckout').find('input[type="checkbox"]').click()
-            cy.get('@formCheckout').find('button[type=submit]').click()
+            cy.get('@formCheckout').submit();
         })
     })
     
-    it('should submit customer form', {
+    it('should submit payment method form', {
         retries: {
           runMode: 2,
           openMode: 1
@@ -59,7 +59,7 @@ describe('Aplazame - Checkout PENDING', () => {
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
             getBody().find('[name=cta]').as('ctaCheckout').should('be.visible')
-            cy.get('@ctaCheckout').find('button').should('be.visible').click()
+            cy.get('@ctaCheckout').find('button').should('be.visible').scrollIntoView().click()
         })
     })
 
