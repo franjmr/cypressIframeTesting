@@ -143,4 +143,35 @@ describe('Aplazame - Checkout OK', () => {
             cy.get('@otpSignature').find('#OtpSecureContainer', {timeout: 10000}).should('be.visible')
         })
     })
+
+    it("should fill One Time Password", {
+        retries: {
+          runMode: 2,
+          openMode: 1
+        }
+      }, () => {
+        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            getBody().find('#sandbox').as('sandbox').should('be.visible')
+            getBody().find('#OtpSecureInput').as('optSecureInput').should('be.visible')
+            cy.get('@sandbox').invoke('text').then( (text: string) => {
+                const sandboxNumber = text.match(/\d/g);
+                return sandboxNumber.join('')
+            }).then( sandboxNumber => {
+                cy.get('@optSecureInput').clear().click().type(sandboxNumber, {delay: 100})
+            })
+        })
+    })
+
+    
+    it("should approve funding", {
+        retries: {
+          runMode: 2,
+          openMode: 1
+        }
+      }, () => {
+        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            getBody().find('modal-upload-documentation ._success').as('modalSuccess').should('be.visible')
+            cy.get('@modalSuccess').should('contain.text','La financiación ha sido aprobada')
+        })
+    })
 })
