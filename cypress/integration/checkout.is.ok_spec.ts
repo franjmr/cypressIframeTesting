@@ -50,24 +50,8 @@ describe('Aplazame - Checkout OK', () => {
             cy.get('@formCheckout').find('button[type=submit]').click()
         })
     })
-
-    it('should fill payment section and submit customer form', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').find('.-cc-inputs-slider').should('be.visible')
-            cy.get('@formCheckout').find('.-cc-number').as('ccNumber').should('be.visible')
-            cy.get('@formCheckout').find('.-cc-expiry').as('ccExpiry').should('be.visible')
-            cy.get('@formCheckout').find('.-cc-cvv').as('ccCvv').should('be.visible')
-        })
-    })
-
     
-    it('should get iframe to fill inputs', {
+    it('should fill payment section and submit customer form', {
         retries: {
           runMode: 2,
           openMode: 1
@@ -83,13 +67,19 @@ describe('Aplazame - Checkout OK', () => {
             cy.get('@ccNumber').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
                 return new Cypress.Promise((resolve) => {
                     const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                    iframe.on('load', function(){
-                        const document = (this as any).contentWindow.document
-                        const root = document.getElementById("root")
-                        const input = root.getElementsByClassName('InputElement')
-                        cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 200 })
+                    if(iframe.contents() && iframe.contents().find('.InputElement').length == 1){
+                        const input = iframe.contents().find('.InputElement')
+                        cy.wrap(input).click().clear().type('4111 1111 1111 1111', {delay: 100 })
                         resolve()
-                    })
+                    }else{
+                        iframe.on('load', function(){
+                            const document = (this as any).contentWindow.document
+                            const root = document.getElementById("root")
+                            const input = root.getElementsByClassName('InputElement')
+                            cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 100 })
+                            resolve()
+                        })
+                    }
                 })
             }).then(($lis) => {
                 expect($lis).to.have.length(1)
@@ -98,13 +88,19 @@ describe('Aplazame - Checkout OK', () => {
             cy.get('@ccExpiry').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
                 return new Cypress.Promise((resolve) => {
                     const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                    iframe.on('load', function(){
-                        const document = (this as any).contentWindow.document
-                        const root = document.getElementById("root")
-                        const input = root.getElementsByClassName('InputElement')
-                        cy.wrap(input[0]).click().clear().type('1125', {delay: 200 })
+                    if(iframe.contents()!= null){
+                        const input = iframe.contents().find('.InputElement')
+                        cy.wrap(input).click().clear().type('1125', {delay: 100 })
                         resolve()
-                    })
+                    }else{
+                        iframe.on('load', function(){
+                            const document = (this as any).contentWindow.document
+                            const root = document.getElementById("root")
+                            const input = root.getElementsByClassName('InputElement')
+                            cy.wrap(input[0]).click().clear().type('1125', {delay: 100 })
+                            resolve()
+                        })
+                    }
                 })
             }).then(($lis) => {
                 expect($lis).to.have.length(1)
@@ -113,17 +109,38 @@ describe('Aplazame - Checkout OK', () => {
             cy.get('@ccCvv').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
                 return new Cypress.Promise((resolve) => {
                     const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                    iframe.on('load', function(){
-                        const document = (this as any).contentWindow.document
-                        const root = document.getElementById("root")
-                        const input = root.getElementsByClassName('InputElement')
-                        cy.wrap(input[0]).click().clear().type('123', {delay: 200 })
+                    if(iframe.contents()!= null){
+                        const input = iframe.contents().find('.InputElement')
+                        cy.wrap(input).click().clear().type('123', {delay: 100 })
                         resolve()
-                    })
+                    }else{
+                        iframe.on('load', function(){
+                            const document = (this as any).contentWindow.document
+                            const root = document.getElementById("root")
+                            const input = root.getElementsByClassName('InputElement')
+                            cy.wrap(input[0]).click().clear().type('123', {delay: 100 })
+                            resolve()
+                        })
+                    }
                 })
             }).then(($lis) => {
                 expect($lis).to.have.length(1)
             })
+
+            cy.get('@formCheckout').submit()
+        })
+    })
+
+    it("should accept the credit", {
+        retries: {
+          runMode: 2,
+          openMode: 1
+        }
+      }, () => {
+        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            getBody().find('#aplazame----otp----signature').as('otpSignature')
+            cy.get('@otpSignature').find('.-sms-sent', {timeout: 10000}).should('contain.text','Te hemos enviado un PIN al')
+            cy.get('@otpSignature').find('#OtpSecureContainer', {timeout: 10000}).should('be.visible')
         })
     })
 })
