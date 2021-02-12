@@ -115,7 +115,7 @@ describe('Aplazame - Checkout PENDING', () => {
         })
     })
 
-    it("No hemos podido validar automáticamente la documentación que nos has adjuntado", {
+    it('should not validate automatically the attached documentation', {
         retries: {
           runMode: 2,
           openMode: 1
@@ -123,8 +123,8 @@ describe('Aplazame - Checkout PENDING', () => {
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
             getBody().find('.-result-content').as('resultContent').should('be.visible')
-            cy.get('@resultContent').find('-result-title').should('contain.text','Lo sentimos')
-            cy.get('@resultContent').find('-result-description').should('contain.text','No hemos podido validar automáticamente la documentación que nos has adjuntado')
+            cy.get('@resultContent').find('.-result-title').should('contain.text','Lo sentimos')
+            cy.get('@resultContent').find('.-result-description').should('contain.text','No hemos podido validar automáticamente la documentación que nos has adjuntado')
         })
     })
 })
