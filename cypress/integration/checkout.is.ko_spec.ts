@@ -1,5 +1,5 @@
 describe('Aplazame - Checkout KO', () => {
-    it('should visit Aplazame url', () => {
+    it('should visit Aplazame', () => {
         cy.visit('https://demo.aplazame.com');
         cy.get('article').should('be.visible')
     })
@@ -50,7 +50,7 @@ describe('Aplazame - Checkout KO', () => {
             cy.get('@formCheckout').find('button[type=submit]').click()
         })
     })
-
+    
     it('should fill payment section and submit customer form', {
         retries: {
           runMode: 2,
@@ -63,19 +63,84 @@ describe('Aplazame - Checkout KO', () => {
             cy.get('@formCheckout').find('.-cc-number').as('ccNumber').should('be.visible')
             cy.get('@formCheckout').find('.-cc-expiry').as('ccExpiry').should('be.visible')
             cy.get('@formCheckout').find('.-cc-cvv').as('ccCvv').should('be.visible')
+
+            cy.get('@ccNumber').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
+                return new Cypress.Promise((resolve) => {
+                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                    if(iframe.contents() && iframe.contents().find('.InputElement').length == 1){
+                        const input = iframe.contents().find('.InputElement')
+                        cy.wrap(input).click().clear().type('4111 1111 1111 1111', {delay: 100 })
+                        resolve()
+                    }else{
+                        iframe.on('load', function(){
+                            const document = (this as any).contentWindow.document
+                            const root = document.getElementById("root")
+                            const input = root.getElementsByClassName('InputElement')
+                            cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 100 })
+                            resolve()
+                        })
+                    }
+                })
+            }).then(($lis) => {
+                expect($lis).to.have.length(1)
+            })
+
+            cy.get('@ccExpiry').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
+                return new Cypress.Promise((resolve) => {
+                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                    if(iframe.contents()!= null){
+                        const input = iframe.contents().find('.InputElement')
+                        cy.wrap(input).click().clear().type('1125', {delay: 100 })
+                        resolve()
+                    }else{
+                        iframe.on('load', function(){
+                            const document = (this as any).contentWindow.document
+                            const root = document.getElementById("root")
+                            const input = root.getElementsByClassName('InputElement')
+                            cy.wrap(input[0]).click().clear().type('1125', {delay: 100 })
+                            resolve()
+                        })
+                    }
+                })
+            }).then(($lis) => {
+                expect($lis).to.have.length(1)
+            })
+
+            cy.get('@ccCvv').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
+                return new Cypress.Promise((resolve) => {
+                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
+                    if(iframe.contents()!= null){
+                        const input = iframe.contents().find('.InputElement')
+                        cy.wrap(input).click().clear().type('123', {delay: 100 })
+                        resolve()
+                    }else{
+                        iframe.on('load', function(){
+                            const document = (this as any).contentWindow.document
+                            const root = document.getElementById("root")
+                            const input = root.getElementsByClassName('InputElement')
+                            cy.wrap(input[0]).click().clear().type('123', {delay: 100 })
+                            resolve()
+                        })
+                    }
+                })
+            }).then(($lis) => {
+                expect($lis).to.have.length(1)
+            })
+
+            cy.get('@formCheckout').submit()
         })
     })
 
-      /**
-      cy.get('section-payment-methods').as('sectionPaymentMethods')
-      cy.get('@sectionPaymentMethods').should('be.visible')
-      cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-          getBody().enter('[name*="__privateStripeFrame"]', { timeout: 10000 }).then(getBody => {
-              getBody().find('input[name="cardnumber"]').click().type('4111111111111111', {delay: 400})
-              getBody().find('input[name="cardExpiry"]').click().type('1125', {delay: 400})
-              getBody().find('input[name="cardCvc"]').click().type('123', {delay: 400})
-          })
-      })
-      */
-    
+    it("should not pass admission criteria", {
+        retries: {
+          runMode: 2,
+          openMode: 1
+        }
+      }, () => {
+        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            getBody().find('.-result-content').as('resultContent')
+            cy.get('@resultContent').find('.-result-title').should('contain.text','¡Lo sentimos!')
+            cy.get('@resultContent').find('.-result-description').should('contain.text','Tu solicitud no cumple los criterios de admisión de crédito de Aplazame')
+        })
+    })
 })
