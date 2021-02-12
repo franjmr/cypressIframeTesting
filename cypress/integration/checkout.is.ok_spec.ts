@@ -1,5 +1,5 @@
 describe('Aplazame - Checkout OK', () => {
-    it('should visit Aplazame url', () => {
+    it('should visit Aplazame', () => {
         cy.visit('https://demo.aplazame.com');
         cy.get('article').should('be.visible')
     })
