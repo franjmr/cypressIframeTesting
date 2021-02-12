@@ -58,8 +58,8 @@ describe('Aplazame - Checkout PENDING', () => {
         }
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').submit()
+            getBody().find('[name=cta]').as('ctaCheckout').should('be.visible')
+            cy.get('@ctaCheckout').find('button').should('be.visible').click()
         })
     })
 
@@ -103,10 +103,28 @@ describe('Aplazame - Checkout PENDING', () => {
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
             getBody().find('modal-upload-documentation').as('modalUploadDocumentation').should('be.visible')
+            getBody().find('form[name=challenge_document_id]').as('formDocumentId').should('exist')
             cy.get('@modalUploadDocumentation').should('contain.text','Verifica tu identidad')
             cy.get('@modalUploadDocumentation').find('form[name=challenge_document_id]').should('exist')
-            cy.get('@modalUploadDocumentation').find('#drop-front-area').should('be.visible')
-            cy.get('@modalUploadDocumentation').find('#drop-back-area').should('be.visible')
+            cy.get('@modalUploadDocumentation').find('#drop-front-area').as("frontIdCard").should('be.visible')
+            cy.get('@modalUploadDocumentation').find('#drop-back-area').as("backIdCard").should('be.visible')
+            cy.get('@frontIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
+            cy.get('@backIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
+            cy.get('@modalUploadDocumentation').find('div[message="challenges.upload_files.attached"]').should('be.visible').should('have.length',2)
+            cy.get('@formDocumentId').submit()
+        })
+    })
+
+    it("No hemos podido validar automáticamente la documentación que nos has adjuntado", {
+        retries: {
+          runMode: 2,
+          openMode: 1
+        }
+      }, () => {
+        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            getBody().find('.-result-content').as('resultContent').should('be.visible')
+            cy.get('@resultContent').find('-result-title').should('contain.text','Lo sentimos')
+            cy.get('@resultContent').find('-result-description').should('contain.text','No hemos podido validar automáticamente la documentación que nos has adjuntado')
         })
     })
 })
