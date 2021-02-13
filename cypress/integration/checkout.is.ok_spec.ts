@@ -157,7 +157,9 @@ describe('Aplazame - Checkout OK', () => {
                 const sandboxNumber = text.match(/\d/g);
                 return sandboxNumber.join('')
             }).then( sandboxNumber => {
+                cy.intercept('POST','/credit-request').as('postCreditRequest')
                 cy.get('@optSecureInput').clear().click().type(sandboxNumber, {delay: 100})
+                cy.wait('@postCreditRequest').its('response.statusCode').should('equal',200)
             })
         })
     })

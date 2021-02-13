@@ -102,19 +102,15 @@ describe('Aplazame - Checkout PENDING', () => {
         }
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            cy.intercept('POST','/credit-request').as('postCreeditRequest')
             getBody().find('modal-upload-documentation').as('modalUploadDocumentation').should('be.visible')
-            cy.get('@modalUploadDocumentation').find('form[name=challenge_document_id]').as('formDocumentId').should('exist')
             cy.get('@modalUploadDocumentation').find('form[name=challenge_document_id]').should('exist')
             cy.get('@modalUploadDocumentation').find('#drop-front-area').as("frontIdCard").should('be.visible')
             cy.get('@modalUploadDocumentation').find('#drop-back-area').as("backIdCard").should('be.visible')
 
             cy.get('@frontIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
             cy.get('@backIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
-            
+
             cy.get('@modalUploadDocumentation').find('div[message="challenges.upload_files.attached"]').should('be.visible').should('have.length',2)
-            cy.get('@formDocumentId').submit()
-            cy.wait('@postCreeditRequest').its('response.statusCode').should('equal',403)
         })
     })
 
@@ -125,9 +121,15 @@ describe('Aplazame - Checkout PENDING', () => {
         }
       }, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            cy.intercept('POST','/credit-request').as('postCreditRequest')
+            getBody().find('modal-upload-documentation').as('modalUploadDocumentation').should('be.visible')
+            cy.get('@modalUploadDocumentation').find('form[name=challenge_document_id]').as('formDocumentId').should('exist')
+            cy.get('@formDocumentId').submit()
+
             getBody().find('.-result-content').as('resultContent').should('be.visible')
             cy.get('@resultContent').find('.-result-title').should('contain.text','Lo sentimos')
             cy.get('@resultContent').find('.-result-description').should('contain.text','No hemos podido validar automáticamente la documentación que nos has adjuntado')
+            cy.wait('@postCreditRequest').its('response.statusCode').should('equal',403)
         })
     })
 })
