@@ -127,7 +127,9 @@ describe('Aplazame - Checkout KO', () => {
                 expect($lis).to.have.length(1)
             })
 
+            cy.intercept('POST','/signin').as('signInRequest')
             cy.get('@formCheckout').submit()
+            cy.wait('@signInRequest').its('response.statusCode').should('equal',403)
         })
     })
 
