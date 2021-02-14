@@ -1,111 +1,48 @@
+import { retriesDefault, acceptAndSubmitConditionsForm, fillAndSubmitPersonalDataForm, fillOneTimePasswordForm } from "../helpers/checkout";
+
 describe('Aplazame - Checkout PENDING', () => {
     it('should visit Aplazame', () => {
         cy.visit('https://demo.aplazame.com');
-        cy.get('article').should('be.visible')
     })
 
-    it('should display pay type widget title in iframe', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
+    it('should display deferred payment widget ', retriesDefault, () => {
         cy.enter('iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('.aplazame-widget-smart-title').should('be.visible')
-            getBody().find('.aplazame-widget-smart-title').should('have.text','¡Págalo a plazos!')
+            getBody().find('.aplazame-widget ').should('be.visible').as('aplazameWidget')
+            cy.get('@aplazameWidget').find('.aplazame-widget-instalments').should('be.visible').as('instalments')
+            cy.get('@instalments').find('select > option').should('have.length.greaterThan', 0)
         })
     })
 
-    it('should click button to pay', () => {
-        cy.get('button.pay-with-aplazame').as('buttonPay')
-        cy.get('@buttonPay').click()
+    it('should click button to pay with Aplazame', () => {
+        cy.get('button.pay-with-aplazame').should('be.visible').click()
     })
 
-    it('should accept and submit checkout form', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').should('be.visible')
-            cy.get('@formCheckout').find('input[name=accepts_gdpr]').click()
-            cy.get('@formCheckout').find('button[type=submit]').click()
-        })
+    it('should accept and submit conditions form', retriesDefault, () => {
+        acceptAndSubmitConditionsForm()
     })
 
-    it('should fill personal data and submit customer form', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').should('be.visible')
-            cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('99999995C')
-            cy.get('@formCheckout').find('input[name=birthday]').click().clear().type('14011984', {delay: 100})
-            cy.get('@formCheckout').find('input[type="checkbox"]').click()
-            cy.get('@formCheckout').submit();
-        })
+    it('should fill personal data and submit customer form', retriesDefault, () => {
+        fillAndSubmitPersonalDataForm('99999995C','14011984')
     })
     
-    it('should submit payment method form', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
+    it('should submit credit card form success in payment section', retriesDefault, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('[name=cta]').as('ctaCheckout').should('be.visible')
-            cy.get('@ctaCheckout').find('button').should('be.visible').scrollIntoView().click()
+            cy.intercept('POST','/signin').as('signInRequest')
+            getBody().find('form[name="checkout"]').as('formCheckout')
+            cy.get('@formCheckout').submit()
+            cy.wait('@signInRequest').its('response.statusCode').should('equal',201)
         })
     })
 
-    it("should accept the credit", {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('#aplazame----otp----signature').as('otpSignature')
-            cy.get('@otpSignature').find('.-sms-sent', {timeout: 10000}).should('contain.text','Te hemos enviado un PIN al')
-            cy.get('@otpSignature').find('#OtpSecureContainer', {timeout: 10000}).should('be.visible')
-        })
+    it("should fill One Time Password form to accept the contract", retriesDefault, () => {
+        fillOneTimePasswordForm()
     })
 
-    it("should fill One Time Password", {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
+    it("should verify identity to approve funding", retriesDefault, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('#sandbox').as('sandbox').should('be.visible')
-            getBody().find('#OtpSecureInput').as('optSecureInput').should('be.visible')
-            cy.get('@sandbox').invoke('text').then( (text: string) => {
-                const sandboxNumber = text.match(/\d/g);
-                return sandboxNumber.join('')
-            }).then( sandboxNumber => {
-                cy.get('@optSecureInput').clear().click().type(sandboxNumber, {delay: 100})
-            })
-        })
-    })
-
-    
-    it("should verify identity to approve funding", {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('modal-upload-documentation').as('modalUploadDocumentation').should('be.visible')
-            cy.get('@modalUploadDocumentation').find('form[name=challenge_document_id]').should('exist')
-            cy.get('@modalUploadDocumentation').find('#drop-front-area').as("frontIdCard").should('be.visible')
-            cy.get('@modalUploadDocumentation').find('#drop-back-area').as("backIdCard").should('be.visible')
+            getBody().find('modal-upload-documentation').as('modalUploadDocumentation')
+            cy.get('@modalUploadDocumentation').find('#drop-front-area').as("frontIdCard")
+            cy.get('@modalUploadDocumentation').find('#drop-back-area').as("backIdCard")
 
             cy.get('@frontIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
             cy.get('@backIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
@@ -114,15 +51,10 @@ describe('Aplazame - Checkout PENDING', () => {
         })
     })
 
-    it('should not validate automatically the attached documentation', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
+    it('should not validate automatically the attached documentation', retriesDefault, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
             cy.intercept('POST','/credit-request').as('postCreditRequest')
-            getBody().find('modal-upload-documentation').as('modalUploadDocumentation').should('be.visible')
+            getBody().find('modal-upload-documentation').as('modalUploadDocumentation')
             cy.get('@modalUploadDocumentation').find('form[name=challenge_document_id]').as('formDocumentId').should('exist')
             cy.get('@formDocumentId').submit()
 
