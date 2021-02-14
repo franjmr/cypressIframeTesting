@@ -1,177 +1,56 @@
+import { fillAndSubmitPersonalDataForm, acceptAndSubmitConditionsForm, fillCreditCardInputsForm, fillOneTimePasswordForm, retriesDefault } from "../helpers/checkout";
+
 describe('Aplazame - Checkout OK', () => {
     it('should visit Aplazame', () => {
-        cy.visit('https://demo.aplazame.com');
-        cy.get('article').should('be.visible')
+        cy.visit('https://demo.aplazame.com')
     })
 
-    it('should display pay type widget title in iframe', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
+    it('should display deferred payment widget ', retriesDefault, () => {
         cy.enter('iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('.aplazame-widget-smart-title').should('be.visible')
-            getBody().find('.aplazame-widget-smart-title').should('have.text','¡Págalo a plazos!')
+            getBody().find('.aplazame-widget ').should('be.visible').as('aplazameWidget')
+            cy.get('@aplazameWidget').find('.aplazame-widget-instalments').should('be.visible').as('instalments')
+            cy.get('@instalments').find('select > option').should('have.length.greaterThan', 0)
         })
     })
 
-    it('should click button to pay', () => {
-        cy.get('button.pay-with-aplazame').as('buttonPay')
-        cy.get('@buttonPay').click()
+    it('should click button to pay with Aplazame', () => {
+        cy.get('button.pay-with-aplazame').should('be.visible').click()
     })
 
-    it('should accept and submit checkout form', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').should('be.visible')
-            cy.get('@formCheckout').find('input[name=accepts_gdpr]').click()
-            cy.get('@formCheckout').find('button[type=submit]').click()
-        })
+    it('should accept and submit conditions form', retriesDefault, () => {
+        acceptAndSubmitConditionsForm()
     })
 
-    it('should fill personal data and submit customer form', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').should('be.visible')
-            cy.get('@formCheckout').find('input[name=document_id]').click().clear().type('34084793N')
-            cy.get('@formCheckout').find('input[name=birthday]').click().clear().type('14011984', {delay: 100})
-            cy.get('@formCheckout').find('input[type="checkbox"]').click()
-            cy.get('@formCheckout').find('button[type=submit]').click()
-        })
+    it('should fill personal data and submit customer form', retriesDefault, () => {
+        fillAndSubmitPersonalDataForm('34084793N','14011984')
     })
     
-    it('should fill payment section and submit customer form', {
+    it('should fill credit card form in payment section', {
         retries: {
           runMode: 2,
           openMode: 1
         }
       }, () => {
+        fillCreditCardInputsForm('4111 1111 1111 1111','1125','123')
+    })
+
+    it('should submit credit card form success in payment section', retriesDefault, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            cy.intercept('POST','/signin').as('signInRequest')
             getBody().find('form[name="checkout"]').as('formCheckout')
-            cy.get('@formCheckout').find('.-cc-inputs-slider').should('be.visible')
-            cy.get('@formCheckout').find('.-cc-number').as('ccNumber').should('be.visible')
-            cy.get('@formCheckout').find('.-cc-expiry').as('ccExpiry').should('be.visible')
-            cy.get('@formCheckout').find('.-cc-cvv').as('ccCvv').should('be.visible')
-
-            cy.get('@ccNumber').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
-                return new Cypress.Promise((resolve) => {
-                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                    if(iframe.contents() && iframe.contents().find('.InputElement').length == 1){
-                        const input = iframe.contents().find('.InputElement')
-                        cy.wrap(input).click().clear().type('4111 1111 1111 1111', {delay: 100 })
-                        resolve()
-                    }else{
-                        iframe.on('load', function(){
-                            const document = (this as any).contentWindow.document
-                            const root = document.getElementById("root")
-                            const input = root.getElementsByClassName('InputElement')
-                            cy.wrap(input[0]).click().clear().type('4111 1111 1111 1111', {delay: 100 })
-                            resolve()
-                        })
-                    }
-                })
-            }).then(($lis) => {
-                expect($lis).to.have.length(1)
-            })
-
-            cy.get('@ccExpiry').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
-                return new Cypress.Promise((resolve) => {
-                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                    if(iframe.contents()!= null){
-                        const input = iframe.contents().find('.InputElement')
-                        cy.wrap(input).click().clear().type('1125', {delay: 100 })
-                        resolve()
-                    }else{
-                        iframe.on('load', function(){
-                            const document = (this as any).contentWindow.document
-                            const root = document.getElementById("root")
-                            const input = root.getElementsByClassName('InputElement')
-                            cy.wrap(input[0]).click().clear().type('1125', {delay: 100 })
-                            resolve()
-                        })
-                    }
-                })
-            }).then(($lis) => {
-                expect($lis).to.have.length(1)
-            })
-
-            cy.get('@ccCvv').find("div.__PrivateStripeElement").each(($li, index, $lis) => {
-                return new Cypress.Promise((resolve) => {
-                    const iframe = $li.find('iframe[name*="__privateStripeFrame"]')
-                    if(iframe.contents()!= null){
-                        const input = iframe.contents().find('.InputElement')
-                        cy.wrap(input).click().clear().type('123', {delay: 100 })
-                        resolve()
-                    }else{
-                        iframe.on('load', function(){
-                            const document = (this as any).contentWindow.document
-                            const root = document.getElementById("root")
-                            const input = root.getElementsByClassName('InputElement')
-                            cy.wrap(input[0]).click().clear().type('123', {delay: 100 })
-                            resolve()
-                        })
-                    }
-                })
-            }).then(($lis) => {
-                expect($lis).to.have.length(1)
-            })
-
             cy.get('@formCheckout').submit()
+            cy.wait('@signInRequest').its('response.statusCode').should('equal',201)
         })
     })
 
-    it("should accept the credit", {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('#aplazame----otp----signature').as('otpSignature')
-            cy.get('@otpSignature').find('.-sms-sent', {timeout: 10000}).should('contain.text','Te hemos enviado un PIN al')
-            cy.get('@otpSignature').find('#OtpSecureContainer', {timeout: 10000}).should('be.visible')
-        })
+    it("should fill One Time Password form to accept the contract", retriesDefault, () => {
+        fillOneTimePasswordForm()
     })
 
-    it("should fill One Time Password", {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
+    it("should approve funding when accept the contract", retriesDefault, () => {
         cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
-            getBody().find('#sandbox').as('sandbox').should('be.visible')
-            getBody().find('#OtpSecureInput').as('optSecureInput').should('be.visible')
-            cy.get('@sandbox').invoke('text').then( (text: string) => {
-                const sandboxNumber = text.match(/\d/g);
-                return sandboxNumber.join('')
-            }).then( sandboxNumber => {
-                cy.intercept('POST','/credit-request').as('postCreditRequest')
-                cy.get('@optSecureInput').clear().click().type(sandboxNumber, {delay: 100})
-                cy.wait('@postCreditRequest').its('response.statusCode').should('equal',200)
-            })
-        })
-    })
-
-    
-    it("should approve funding", {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+            cy.intercept('POST','/credit-request').as('postCreditRequest')
+            cy.wait('@postCreditRequest').its('response.statusCode').should('equal',200)
             getBody().find('modal-upload-documentation ._success').as('modalSuccess').should('be.visible')
             cy.get('@modalSuccess').should('contain.text','La financiación ha sido aprobada')
         })
