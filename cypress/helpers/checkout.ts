@@ -10,8 +10,8 @@ function setValueCreditCardInput(element: Cypress.Chainable<JQuery<HTMLElement>>
                 iframe.on('load', function(){
                     const document = (this as HTMLIFrameElement).contentWindow.document
                     const root = document.getElementById("root")
-                    const input = root.getElementsByClassName('InputElement')
-                    cy.wrap(input[0]).click().clear().type(value, {delay: 100 })
+                    const inputs = root.getElementsByClassName('InputElement')
+                    cy.wrap(inputs[0]).click().clear().type(value, {delay: 100 })
                     resolve()
                 })
             }
@@ -28,9 +28,9 @@ export function fillCreditCardInputsForm(ccNumber:string, ccExpiry: string, ccCv
         cy.get('@formCheckout').find('.-cc-expiry').as('ccExpiry')
         cy.get('@formCheckout').find('.-cc-cvv').as('ccCvv')
     
-        setValueCreditCardInput(cy.get('@ccNumber'),ccNumber)
-        setValueCreditCardInput(cy.get('@ccExpiry'),ccExpiry)
-        setValueCreditCardInput(cy.get('@ccCvv'),ccCvv)
+        setValueCreditCardInput(cy.get('@ccNumber'), ccNumber)
+        setValueCreditCardInput(cy.get('@ccExpiry'), ccExpiry)
+        setValueCreditCardInput(cy.get('@ccCvv'), ccCvv)
     })
 }
 
@@ -60,8 +60,8 @@ export function fillOneTimePasswordForm(): void {
         getBody().find('#sandbox').as('sandbox')
         getBody().find('#OtpSecureInput').as('optSecureInput')
         cy.get('@otpSignature').find('#OtpSecureContainer', {timeout: 10000})
-        cy.get('@sandbox').invoke('text').then( (text: string) => {
-            const sandboxNumbers = text.match(/\d/g);
+        cy.get('@sandbox').invoke('text').then( (sandboxText: string) => {
+            const sandboxNumbers = sandboxText.match(/\d/g);
             return sandboxNumbers.join('')
         }).then( sandboxNumber => {
             cy.get('@optSecureInput').clear().click().type(sandboxNumber, {delay: 100})
