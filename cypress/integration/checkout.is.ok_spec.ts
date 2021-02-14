@@ -26,7 +26,7 @@ describe('Aplazame - Checkout OK', () => {
     })
     
     it('should fill credit card form in payment section', retriesDefault, () => {
-        fillCreditCardInputsForm('4111 1111 1111 1111','1125','123')
+        fillCreditCardInputsForm('4111111111111111','1125','123')
     })
 
     it('should submit credit card form success in payment section', retriesDefault, () => {
