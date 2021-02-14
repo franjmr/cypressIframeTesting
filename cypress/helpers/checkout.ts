@@ -69,6 +69,16 @@ export function fillOneTimePasswordForm(): void {
     })
 }
 
+export function uploadDocumentation(): void {
+    cy.enter('#aplazame-checkout-iframe', { timeout: 10000 }).then(getBody => {
+        getBody().find('modal-upload-documentation').as('modalUploadDocumentation')
+        cy.get('@modalUploadDocumentation').find('#drop-front-area').as("frontIdCard")
+        cy.get('@modalUploadDocumentation').find('#drop-back-area').as("backIdCard")
+        cy.get('@frontIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
+        cy.get('@backIdCard').attachFile('front-id-card-correct.jpg', { subjectType: 'drag-n-drop' });
+    })
+}
+
 export const retriesDefault: Partial<Cypress.ResolvedConfigOptions> = {
     retries : {
         runMode: 2,
