@@ -26,7 +26,7 @@ describe('Aplazame - Checkout KO', () => {
     })
     
     it('should fill credit card form in payment section', retriesDefault, () => {
-        fillCreditCardInputsForm('4111 1111 1111 1111','1125','123')
+        fillCreditCardInputsForm('4111111111111111','1125','123')
     })
 
     it("should not pass admission criteria when submit customer form", retriesDefault, () => {
@@ -38,7 +38,6 @@ describe('Aplazame - Checkout KO', () => {
             cy.wait('@signInRequest').its('response.statusCode').should('equal',403)
 
             getBody().find('.-result-content').as('resultContent')
-            cy.get('@resultContent').find('.-result-title').should('contain.text','¡Lo sentimos!')
             cy.get('@resultContent').find('.-result-description').should('contain.text','Tu solicitud no cumple los criterios de admisión de crédito de Aplazame')
         })
     })

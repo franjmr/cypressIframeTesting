@@ -25,13 +25,8 @@ describe('Aplazame - Checkout OK', () => {
         fillAndSubmitPersonalDataForm('34084793N','14011984')
     })
     
-    it('should fill credit card form in payment section', {
-        retries: {
-          runMode: 2,
-          openMode: 1
-        }
-      }, () => {
-        fillCreditCardInputsForm('4111 1111 1111 1111','1125','123')
+    it('should fill credit card form in payment section', retriesDefault, () => {
+        fillCreditCardInputsForm('4111111111111111','1125','123')
     })
 
     it('should submit credit card form success in payment section', retriesDefault, () => {
