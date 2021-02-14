@@ -56,7 +56,6 @@ describe('Aplazame - Checkout PENDING', () => {
 
             cy.wait('@postCreditRequest').its('response.statusCode').should('equal',403)    
             getBody().find('.-result-content').as('resultContent').should('be.visible')
-            cy.get('@resultContent').find('.-result-title').should('contain.text','Lo sentimos')
             cy.get('@resultContent').find('.-result-description').should('contain.text','No hemos podido validar automáticamente la documentación que nos has adjuntado')
         })
     })
