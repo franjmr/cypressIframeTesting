@@ -9,7 +9,8 @@
         "cy:run:checkout:all:chrome:headless": "cypress run --browser chrome --headless",
         "cy:run:checkout:ok": "cypress run --spec ./cypress/integration/checkout.is.ok_spec.ts",
         "cy:run:checkout:ko": "cypress run --spec ./cypress/integration/checkout.is.ko_spec.ts",
-        "cy:run:checkout:pending": "cypress run --spec ./cypress/integration/checkout.is.pending_spec.ts"
+        "cy:run:checkout:pending": "cypress run --spec ./cypress/integration/checkout.is.pending_spec.ts",
+        "cy:run:checkout:ui": "cypress run --spec ./cypress/integration/checkout.ui_spec.ts"
     },
     "author": "franjmr",
     "license": "ISC",

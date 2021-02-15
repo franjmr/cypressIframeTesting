@@ -37,10 +37,14 @@ npm run cy:run:checkout:ko
 npm run cy:run:checkout:pending
 ```
 
-
 > <b>Pass command’s arguments using npm run:</b> when calling a command using npm run, you need to pass the command’s arguments using the -- string.
 
 <b>Run 'Checkout is PENDING' spec headlessly in the Chrome browser</b>
 ```
 npm run cy:run:checkout:pending -- --browser chrome --headless
+```
+
+## Run Cypress with JUnit reporter from the command line
+```
+npm run cy:run:checkout:pending -- --reporter junit --reporter-options "mochaFile=cypress/results/[hash].xml"
 ```
