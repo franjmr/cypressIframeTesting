@@ -7,3 +7,6 @@ package-lock.json
 ## Cypress videos
 cypress/videos
 cypress/screenshots
+
+## Test Result
+cypress/results
