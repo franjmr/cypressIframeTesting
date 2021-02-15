@@ -85,3 +85,13 @@ export const retriesDefault: Partial<Cypress.ResolvedConfigOptions> = {
         openMode: 1
     }
 }
+
+export interface data {
+    documentId?: string
+    birthday?: string
+    creditCard?: {
+        number: string
+        expiry: string
+        cvv: string
+    }
+}
