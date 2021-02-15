@@ -79,6 +79,11 @@ export function uploadDocumentation(): void {
     })
 }
 
+export function cleantNonBreakingSpace(text: string): string {
+    const cleanValue = text.replace(/\u00a0/g, ' ')
+    return cleanValue
+}
+
 export const retriesDefault: Partial<Cypress.ResolvedConfigOptions> = {
     retries : {
         runMode: 2,
